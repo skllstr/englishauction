@@ -1,83 +1,86 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-import "./Token.sol"; // Импортируем токен (предположим, что это ERC20-подобный контракт)
+import "./Token.sol";
 
 contract EnglishAuction {
-    // Владелец аукциона
     address public owner;
+    GruzdevToken public rewardToken;
 
-    // Текущая максимальная ставка и адрес пользователя
-    uint public highestBid;
-    address public highestBidder;
-
-    // Время окончания аукциона
     uint public endTime;
-
-    // Минимальный шаг ставки
     uint public increment;
-
-    // Токен, в котором проводим аукцион
-    KittyToken public token;
-
-    // Завершён ли аукцион
     bool public ended;
 
-    // События
+    uint public highestBid;
+    address payable public highestBidder;
+
+    uint public prizeAmount;
+
     event NewBid(address indexed bidder, uint amount);
-    event AuctionEnded(address winner, uint amount);
+    event AuctionEnded(address winner, uint bidAmount, uint prizeAmount);
 
-    // Модификатор: только владелец
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this");
+        require(msg.sender == owner, "Only owner");
         _;
     }
 
-    // Модификатор: аукцион ещё не завершён
     modifier auctionActive() {
-        require(block.timestamp < endTime, "Auction already ended");
-        require(!ended, "Auction already ended");
+        require(block.timestamp < endTime, "Auction ended");
+        require(!ended, "Already finalized");
         _;
     }
 
-    constructor(address _tokenAddress, uint _durationSeconds, uint _increment) {
+    constructor(
+        address _tokenAddress,
+        uint _durationSeconds,
+        uint _increment,
+        uint _prizeAmount
+    ) {
         owner = msg.sender;
-        token = KittyToken(_tokenAddress);
+        rewardToken = GruzdevToken(_tokenAddress);
         endTime = block.timestamp + _durationSeconds;
         increment = _increment;
+        prizeAmount = _prizeAmount;
     }
 
-    // Функция для ставок
-    function bid(uint amount) external auctionActive {
-        require(amount >= highestBid + increment, "Bid too low");
-
-        // Перевод токенов от участника на контракт
-        require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-
-        // Возврат предыдущей ставки (если была)
-        if (highestBidder != address(0)) {
-            require(token.transfer(highestBidder, highestBid), "Refund failed");
+    function remainingTime() external view returns (uint) {
+        if (block.timestamp >= endTime) {
+            return 0;
+        } else {
+            return endTime - block.timestamp;
         }
-
-        // Обновляем данные
-        highestBid = amount;
-        highestBidder = msg.sender;
-
-        emit NewBid(msg.sender, amount);
     }
 
-    // Завершение аукциона
+    function bid() external payable auctionActive {
+        require(msg.value >= highestBid + increment, "Bid too low");
+        // Возвращаем предыдущему лидеру его средства
+        if (highestBidder != address(0)) {
+            highestBidder.transfer(highestBid);
+        }
+        highestBid = msg.value;
+        highestBidder = payable(msg.sender);
+
+        emit NewBid(msg.sender, msg.value);
+    }
+
     function endAuction() external onlyOwner {
-        require(!ended, "Auction already ended");
-        require(block.timestamp >= endTime, "Auction not yet ended");
+        require(!ended, "Already ended");
+        require(block.timestamp >= endTime, "Too early to end");
 
         ended = true;
 
-        // Перевод выигрыша владельцу
-        if (highestBid > 0) {
-            require(token.transfer(owner, highestBid), "Payout failed");
+        // Победителю приз
+        if (highestBidder != address(0)) {
+            require(
+                rewardToken.transferFrom(owner, highestBidder, prizeAmount),
+                "Token transfer to winner failed"
+            );
+            // Владелец получает ETH
+            payable(owner).transfer(highestBid);
+        } else {
+            // Если никто не делал ставки — владелец может вернуть себе токены вручную
         }
 
-        emit AuctionEnded(highestBidder, highestBid);
+        emit AuctionEnded(highestBidder, highestBid, prizeAmount);
     }
 }

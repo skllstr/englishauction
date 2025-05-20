@@ -21,6 +21,11 @@
 						"internalType": "uint256",
 						"name": "_increment",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_prizeAmount",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -38,7 +43,13 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "amount",
+						"name": "bidAmount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "prizeAmount",
 						"type": "uint256"
 					}
 				],
@@ -65,16 +76,10 @@
 				"type": "event"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					}
-				],
+				"inputs": [],
 				"name": "bid",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -128,7 +133,7 @@
 				"name": "highestBidder",
 				"outputs": [
 					{
-						"internalType": "address",
+						"internalType": "address payable",
 						"name": "",
 						"type": "address"
 					}
@@ -164,10 +169,36 @@
 			},
 			{
 				"inputs": [],
-				"name": "token",
+				"name": "prizeAmount",
 				"outputs": [
 					{
-						"internalType": "contract KittyToken",
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "remainingTime",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "rewardToken",
+				"outputs": [
+					{
+						"internalType": "contract GruzdevToken",
 						"name": "",
 						"type": "address"
 					}
@@ -252,19 +283,19 @@
 			]
 		},
 		"Auction.sol": {
-			"keccak256": "0x44fbcf9296d8d0f3b066d1418b6b4b9ea58ee0dd248506ea9d36d14a0afd8c29",
+			"keccak256": "0xa68afac214c85e8edde67e4c384c9f136e7a3e91708d58339e35d39c64ca268f",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://239ada0ec8327862c7743c88087be8bcbe1485cae0d5ff36521630e998b60fce",
-				"dweb:/ipfs/QmQo4F9CFzmbYBPkz6nW8hQkrZKCg4fMFaUYmHwHvYN6Pr"
+				"bzz-raw://5658cce8f83017458b11b7a3c5256513170527f203a4532e2197ade8e64a7d91",
+				"dweb:/ipfs/QmNiF2ew33iR6atMkgykZfq3ATsL6DRGh5Ynd5xpR7fqHN"
 			]
 		},
 		"Token.sol": {
-			"keccak256": "0x973e75d3bc0ff4c6848051a849e01227eca3a1cc6ca444aa2839d51a50251963",
+			"keccak256": "0xa4a69cfc9f873afbad1f81b7291565cf012a0f412e8aaa273be38f9daa15c831",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://16702fcf133f744d93ec8e568ac8c939723599c8908ae96da913e4e833cd713a",
-				"dweb:/ipfs/QmNNMYRonVk8pVcGtxvvL2cXv5gNNqJyGz4m2Zy7uLh5Kk"
+				"bzz-raw://efd3b3e7dc6faead4a9823580432d561fd1e3bdf2b739fa5e7108ad3fbcacd4d",
+				"dweb:/ipfs/QmSsS3KAc4BNfa4Uq4SHXrXbMYN36bL1M4wS8SbAh1RYHY"
 			]
 		}
 	},
